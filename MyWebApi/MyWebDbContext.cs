@@ -1,6 +1,8 @@
 ﻿using System;
+using Microsoft.Data.SqlClient;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore.Metadata;
+using Microsoft.EntityFrameworkCore.Storage;
 
 namespace MyWebApi
 {
@@ -10,9 +12,19 @@ namespace MyWebApi
         {
         }
 
+
+        public MyWebDbContext(SqlConnection connection, string accesstocken)
+        {
+            connection.AccessToken = accesstocken;          
+
+        }
+
         public MyWebDbContext(DbContextOptions<MyWebDbContext> options)
             : base(options)
         {
+            var conn = (Microsoft.Data.SqlClient.SqlConnection)Database.GetDbConnection();
+            var prov = new Microsoft.Azure.Services.AppAuthentication.AzureServiceTokenProvider();
+            conn.AccessToken = prov.GetAccessTokenAsync("https://database.windows.net/").Result;
         }
 
         public virtual DbSet<Line> Line { get; set; }
